@@ -7,58 +7,63 @@ on:
     branches: [ main ]
 
 jobs:
-  dockerbuild:
+
+  dockerbuild: #we can specifu any names to our jobs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4 #The actions/checkout@v3 step is used to clone (download) your GitHub repository into the runner (i.e., the virtual machine where your workflow runs).
     - name: Build The Docker Image
       run: docker build . --file DockerFile --tag workflow-test:$(date +%s)
-  build-and-test:
-    runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+  build-and-test:                      # ✏️ Job name (you define this)
+    runs-on: ubuntu-latest            # ✅ GitHub-hosted runner (you pick a valid one, like 'ubuntu-latest')
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+    steps:                            # ✅ Required keyword to define all steps
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flask
-        pip install pytest
+      - name: Checkout code           # ✏️ Human-readable step name
+        uses: actions/checkout@v4     # ✅ Official GitHub Action to clone your repository
 
-    - name: Run tests
-      run: |
-        pytest
+      - name: Set up Python           # ✏️ Descriptive step name
+        uses: actions/setup-python@v4  # ✅ GitHub Action to install and configure Python
+        with:                         # ✅ Keyword to pass configuration inputs
+          python-version: '3.9'       # ✏️ Python version (you choose this version)
 
-  build-and-publish:
-    needs: build-and-test
-    runs-on: ubuntu-latest
+      - name: Install dependencies    # ✏️ Step name
+        run: |                        # ✅ Shell command block
+          python -m pip install --upgrade pip     # ✏️ Custom command to upgrade pip
+          pip install flask                       # ✏️ You choose which packages to install
+          pip install pytest                      # ✏️ Installing test framework
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Run tests               # ✏️ Step name
+        run: |                        # ✅ Shell command block
+          pytest                      # ✏️ Test command (you define what to run)
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+  build-and-publish:                         # ✏️ Job name (you define this)
+    needs: build-and-test                    # ✏️ Depends on another job (must match your other job's name)
+    runs-on: ubuntu-latest                   # ✅ GitHub-hosted runner (must be a valid option)
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+    steps:                                   # ✅ Required keyword to define all steps
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        file: ./DockerFile
-        push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest
+      - name: Checkout code                  # ✏️ Step name (for readability)
+        uses: actions/checkout@v4            # ✅ Official GitHub Action to clone your repo
 
-    - name: Image digest
-      run: echo ${{ steps.build-and-publish.outputs.digest }}
+      - name: Set up Docker Buildx           # ✏️ Descriptive step name
+        uses: docker/setup-buildx-action@v2  # ✅ Marketplace action to enable advanced Docker builds
+
+      - name: Login to DockerHub             # ✏️ Your step name
+        uses: docker/login-action@v2         # ✅ DockerHub login action
+        with:                                # ✅ Used to pass inputs
+          username: ${{ secrets.DOCKER_USERNAME }}  # ✅ Uses GitHub secret (you define the name in Secrets)
+          password: ${{ secrets.DOCKER_PASSWORD }}  # ✅ Also from Secrets
+
+      - name: Build and push Docker image          # ✏️ Step name
+        id: docker_build                           # ✏️ Custom ID for referencing outputs later
+        uses: docker/build-push-action@v4          # ✅ Official build & push action
+        with:                                      # ✅ Required for action inputs
+          context: .                               # ✏️ Build context (here, current directory)
+          file: ./Dockerfile                       # ✏️ Path to your Dockerfile
+          push: true                               # ✅ Pushes image to registry (DockerHub)
+          tags: ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest  # ✏️ Custom image tag using your username
+
+      - name: Image digest                         # ✏️ Descriptive step name
+        run: echo ${{ steps.docker_build.outputs.digest }}  # ✅ Access output from previous step by ID
