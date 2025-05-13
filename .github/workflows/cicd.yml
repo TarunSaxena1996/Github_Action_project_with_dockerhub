@@ -59,10 +59,11 @@ jobs:
       uses: docker/build-push-action@v4          # ✅ Official build & push action
       with:                                      # ✅ Required for action inputs
         context: .                               # ✏️ Build context (here, current directory)
-        file: ./DockerFile                       # ✏️ Path to your Dockerfile
+        file: ./Dockerfile                       # ✏️ Path to your Dockerfile
         push: true                               # ✅ Pushes image to registry (DockerHub)
         platforms: linux/amd64,linux/arm64
         tags: ${{ secrets.DOCKER_USERNAME }}/github_action_project_with_dockerhub:latest  # ✏️ Custom image tag using your username
 
     - name: Image digest                         # ✏️ Descriptive step name
       run: echo ${{ steps.docker_build.outputs.digest }}  # ✅ Access output from previous step by ID
+      
