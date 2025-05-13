@@ -59,7 +59,7 @@ jobs:
       uses: docker/build-push-action@v4          # ✅ Official build & push action
       with:                                      # ✅ Required for action inputs
         context: .                               # ✏️ Build context (here, current directory)
-        file: ./Dockerfile                       # ✏️ Path to your Dockerfile
+        file: ./DockerFile                       # ✏️ Path to your Dockerfile
         push: true                               # ✅ Pushes image to registry (DockerHub)
         tags: ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest  # ✏️ Custom image tag using your username
 
