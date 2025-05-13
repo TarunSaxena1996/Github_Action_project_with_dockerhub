@@ -61,7 +61,7 @@ jobs:
         context: .                               # ✏️ Build context (here, current directory)
         file: ./DockerFile                       # ✏️ Path to your Dockerfile
         push: true                               # ✅ Pushes image to registry (DockerHub)
-        tags: ${{ secrets.DOCKER_USERNAME }}/flasktest-app:latest  # ✏️ Custom image tag using your username
+        tags: ${{ secrets.DOCKER_USERNAME }}/Github_Action_project_with_dockerhub:latest  # ✏️ Custom image tag using your username
 
     - name: Image digest                         # ✏️ Descriptive step name
       run: echo ${{ steps.docker_build.outputs.digest }}  # ✅ Access output from previous step by ID
