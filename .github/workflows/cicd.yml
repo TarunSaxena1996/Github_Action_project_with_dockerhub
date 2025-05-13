@@ -61,6 +61,7 @@ jobs:
         context: .                               # ✏️ Build context (here, current directory)
         file: ./DockerFile                       # ✏️ Path to your Dockerfile
         push: true                               # ✅ Pushes image to registry (DockerHub)
+        platforms: linux/amd64,linux/arm64
         tags: ${{ secrets.DOCKER_USERNAME }}/github_action_project_with_dockerhub:latest  # ✏️ Custom image tag using your username
 
     - name: Image digest                         # ✏️ Descriptive step name
